@@ -1,0 +1,225 @@
+<\!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Memristive Device Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark-lab">
+
+    <div id="canvas-container"></div>
+
+    <\!-- TOP TASKBAR -->
+    <div id="top-bar">
+        <div class="tb-group">
+            <span class="tb-label">Shape</span>
+            <button class="tb-btn active" data-shape="cylinder" id="tb-cylinder">Cylinder</button>
+            <button class="tb-btn" data-shape="block" id="tb-block">Block</button>
+        </div>
+        <div class="tb-sep"></div>
+        <div class="tb-group">
+            <span class="tb-label">Mode</span>
+            <button class="tb-btn active" data-mode="solid" id="tb-solid">Solid</button>
+            <button class="tb-btn" data-mode="hollow" id="tb-hollow">Hollow</button>
+            <button class="tb-btn" data-mode="semi" id="tb-semi">Semi</button>
+        </div>
+        <div class="tb-sep"></div>
+        <div class="tb-group">
+            <span class="tb-label">Theme</span>
+            <select id="theme-select">
+                <option value="dark-lab">Dark Lab</option>
+                <option value="light-pub">Light Publication</option>
+                <option value="white-ppt">White PPT</option>
+                <option value="neutral">Neutral Gray</option>
+                <option value="high-contrast">High Contrast</option>
+            </select>
+        </div>
+        <div class="tb-sep"></div>
+        <div class="tb-group tb-dropdown-wrap">
+            <button class="tb-btn tb-icon" id="tb-download-toggle">&#11015; Download &#9662;</button>
+            <div class="tb-dropdown" id="tb-download-menu">
+                <button class="tb-dd-item" id="tb-download">Download Image</button>
+                <button class="tb-dd-item" id="tb-hires">Hi-Res 4x</button>
+                <button class="tb-dd-item" id="tb-transparent-top">Transparent BG</button>
+            </div>
+        </div>
+        <div class="tb-group">
+            <button class="tb-btn tb-icon" id="tb-playpause" title="Play / Pause Animation">&#9654; Animate</button>
+            <button class="tb-btn tb-icon" id="tb-resetcam" title="Reset Camera">&#8634; Reset</button>
+        </div>
+    </div>
+
+    <\!-- INFO PANEL (top-right) -->
+    <div id="info-panel">
+        <div id="info-title">Device State</div>
+        <div id="info-text">Pristine</div>
+    </div>
+
+    <div id="label-overlay"></div>
+
+    <\!-- LEFT CONTROL PANEL -->
+    <div id="control-panel">
+        <div id="panel-header">
+            <span class="panel-title">Controls</span>
+            <button id="panel-toggle" title="Collapse">&#9654;</button>
+        </div>
+        <div id="panel-body">
+
+            <div class="control-section">
+                <div class="section-title">Presets</div>
+                <select id="preset-select">
+                    <option value="pristine">Pristine</option>
+                    <option value="vacancy-gen">Vacancy Generation</option>
+                    <option value="electroforming">Electroforming</option>
+                    <option value="lrs">LRS (Low Resistance)</option>
+                    <option value="partial-rupture">Partial Rupture</option>
+                    <option value="hrs">HRS (High Resistance)</option>
+                    <option value="reforming">Re-forming</option>
+                    <option value="switching-demo">Switching Demo</option>
+                </select>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Geometry</div>
+                <label>Radius <span class="val" id="val-cylRadius">1.8</span>
+                    <input type="range" id="ctrl-cylRadius" min="0.5" max="4" step="0.1" value="1.8">
+                </label>
+                <label>Height <span class="val" id="val-cylHeight">5</span>
+                    <input type="range" id="ctrl-cylHeight" min="2" max="10" step="0.1" value="5">
+                </label>
+                <label>Top Lid <span class="val" id="val-topThick">0.5</span>
+                    <input type="range" id="ctrl-topThick" min="0.1" max="1.5" step="0.05" value="0.5">
+                </label>
+                <label>Bottom Lid <span class="val" id="val-botThick">0.5</span>
+                    <input type="range" id="ctrl-botThick" min="0.1" max="1.5" step="0.05" value="0.5">
+                </label>
+                <div class="checkbox-row" style="margin-top:4px">
+                    <label><input type="checkbox" id="chk-topElectrode" checked> Top Electrode</label>
+                    <label><input type="checkbox" id="chk-botElectrode" checked> Bottom Electrode</label>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Atoms</div>
+                <label>Size <span class="val" id="val-atomSize">0.12</span>
+                    <input type="range" id="ctrl-atomSize" min="0.04" max="0.4" step="0.01" value="0.12">
+                </label>
+                <label>Density <span class="val" id="val-atomDensity">1.0</span>
+                    <input type="range" id="ctrl-atomDensity" min="0.3" max="2.0" step="0.05" value="1.0">
+                </label>
+                <label>Body Opacity <span class="val" id="val-opacity">0.85</span>
+                    <input type="range" id="ctrl-opacity" min="0" max="1" step="0.01" value="0.85">
+                </label>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Filament</div>
+                <label>Thickness <span class="val" id="val-filThick">0.5</span>
+                    <input type="range" id="ctrl-filThick" min="0.1" max="1.5" step="0.05" value="0.5">
+                </label>
+                <label>Randomness <span class="val" id="val-filRand">0.3</span>
+                    <input type="range" id="ctrl-filRand" min="0" max="1" step="0.05" value="0.3">
+                </label>
+                <label>Build Progress <span class="val" id="val-buildProg">0</span>
+                    <input type="range" id="ctrl-buildProg" min="0" max="1" step="0.01" value="0">
+                </label>
+                <label>Growth Speed <span class="val" id="val-growSpeed">1.0</span>
+                    <input type="range" id="ctrl-growSpeed" min="0.1" max="3" step="0.1" value="1.0">
+                </label>
+                <div class="sub-label">Growth Direction</div>
+                <div class="radio-group">
+                    <label><input type="radio" name="growDir" value="bottom-up" checked> Bottom-Up</label>
+                    <label><input type="radio" name="growDir" value="top-down"> Top-Down</label>
+                    <label><input type="radio" name="growDir" value="dual"> Dual Meet</label>
+                </div>
+                <div class="sub-label" style="margin-top:4px">Polarity</div>
+                <div class="radio-group">
+                    <label><input type="radio" name="polarity" value="top-pos" checked> Top (+) Bottom (-)</label>
+                    <label><input type="radio" name="polarity" value="top-neg"> Top (-) Bottom (+)</label>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Rupture</div>
+                <div class="radio-group">
+                    <label><input type="radio" name="ruptureLocation" value="top" checked> Top</label>
+                    <label><input type="radio" name="ruptureLocation" value="center"> Center</label>
+                    <label><input type="radio" name="ruptureLocation" value="bottom"> Bottom</label>
+                    <label><input type="radio" name="ruptureLocation" value="random"> Random</label>
+                </div>
+                <div class="radio-group" style="margin-top:4px">
+                    <label><input type="radio" name="ruptureStyle" value="progressive" checked> Progressive</label>
+                    <label><input type="radio" name="ruptureStyle" value="abrupt"> Abrupt</label>
+                </div>
+                <label>Rupture Amount <span class="val" id="val-rupture">0</span>
+                    <input type="range" id="ctrl-rupture" min="0" max="1" step="0.01" value="0">
+                </label>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Colors</div>
+                <div class="color-row">
+                    <label>Top Lid <input type="color" id="clr-topLid" value="#c0a050"></label>
+                    <label>Bottom Lid <input type="color" id="clr-botLid" value="#a0a0b0"></label>
+                </div>
+                <div class="color-row">
+                    <label>Body <input type="color" id="clr-body" value="#4a7a9b"></label>
+                    <label>Filament <input type="color" id="clr-filament" value="#ff6030"></label>
+                </div>
+                <div class="color-row">
+                    <label>Vacancy <input type="color" id="clr-vacancy" value="#ffcc00"></label>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Interactive</div>
+                <div class="button-row">
+                    <button id="btn-add-ion" class="action-btn accent">+ Ion</button>
+                    <button id="btn-add-vacancy" class="action-btn accent">+ Vacancy</button>
+                </div>
+                <div class="button-row">
+                    <button id="btn-delete-particle" class="action-btn">Delete Selected</button>
+                </div>
+                <div class="hint-text">Click inside device to place. Click particle to select. Drag to move. Press Delete key to remove.</div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">View</div>
+                <label>Light Intensity <span class="val" id="val-lightInt">1.0</span>
+                    <input type="range" id="ctrl-lightInt" min="0.2" max="3" step="0.1" value="1.0">
+                </label>
+                <label>Glow <span class="val" id="val-glow">0.3</span>
+                    <input type="range" id="ctrl-glow" min="0" max="1" step="0.05" value="0.3">
+                </label>
+                <label>Anim Speed <span class="val" id="val-animSpeed">1.0</span>
+                    <input type="range" id="ctrl-animSpeed" min="0.1" max="3" step="0.1" value="1.0">
+                </label>
+                <div class="checkbox-row">
+                    <label><input type="checkbox" id="chk-labels" checked> Labels</label>
+                    <label><input type="checkbox" id="chk-grid" checked> Grid</label>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Tools</div>
+                <div class="button-row">
+                    <button id="btn-cutaway" class="action-btn">Cutaway</button>
+                </div>
+                <div class="button-row">
+                    <button id="btn-rebuild" class="action-btn">Rebuild</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
